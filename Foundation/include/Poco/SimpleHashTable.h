@@ -38,7 +38,7 @@ template <class Key, class Value, class KeyHashFunction = HashFunction<Key> >
 class SimpleHashTable
 	/// A SimpleHashTable stores a key value pair that can be looked up via a hashed key.
 	///
-	/// In comparision to a HashTable, this class handles collisions by sequentially searching the next
+	/// In comparison to a HashTable, this class handles collisions by sequentially searching the next
 	/// free location. This also means that the maximum size of this table is limited, i.e. if the hash table
 	/// is full, it will throw an exception and that this class does not support remove operations.
 	/// On the plus side it is faster than the HashTable.
@@ -369,7 +369,7 @@ public:
 				UInt32 size = 1;
 				if (details)
 					detailedEntriesPerHash.push_back(size);
-	#ifdef DEBUG
+	#ifdef _DEBUG
 				totalSize += size;
 	#endif
 			}
@@ -380,8 +380,9 @@ public:
 					detailedEntriesPerHash.push_back(0);
 			}
 		}
+	#ifdef _DEBUG
 		poco_assert_dbg(totalSize == numberOfEntries);
-
+	#endif
 		return HashStatistic(_capacity, numberOfEntries, numZeroEntries, maxEntriesPerHash, detailedEntriesPerHash);
 	}
 

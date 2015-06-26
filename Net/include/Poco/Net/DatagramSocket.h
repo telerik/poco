@@ -69,7 +69,7 @@ public:
 		/// Restricts incoming and outgoing
 		/// packets to the specified address.
 		///
-		/// Cannot be used together with bind().
+		/// Calls to connect() cannot come before calls to bind().
 
 	void bind(const SocketAddress& address, bool reuseAddress = false);
 		/// Bind a local address to the socket.
@@ -80,7 +80,7 @@ public:
 		/// If reuseAddress is true, sets the SO_REUSEADDR
 		/// socket option.
 		///
-		/// Cannot be used together with connect().
+		/// Calls to connect cannot() come before calls to bind().
 
 	int sendBytes(const void* buffer, int length, int flags = 0);
 		/// Sends the contents of the given buffer through
@@ -121,7 +121,7 @@ public:
 protected:
 	DatagramSocket(SocketImpl* pImpl);
 		/// Creates the Socket and attaches the given SocketImpl.
-		/// The socket takes owership of the SocketImpl.
+		/// The socket takes ownership of the SocketImpl.
 		///
 		/// The SocketImpl must be a StreamSocketImpl, otherwise
 		/// an InvalidArgumentException will be thrown.

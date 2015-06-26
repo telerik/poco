@@ -1,9 +1,9 @@
 //
 // X509Certificate.h
 //
-// $Id: //poco/1.4/Crypto/include/Poco/Crypto/X509Certificate.h#2 $
+// $Id$
 //
-// Library: Crypto
+// Library: NetSSL_Win
 // Package: Certificate
 // Module:  X509Certificate
 //
@@ -22,8 +22,8 @@
 
 #include "Poco/Net/NetSSL.h"
 #include "Poco/DateTime.h"
-#include "Poco/SharedPtr.h"
 #include <set>
+#include <istream>
 #include <wincrypt.h>
 
 
@@ -47,13 +47,20 @@ public:
 		NID_ORGANIZATION_UNIT_NAME	
 	};
 	
+	explicit X509Certificate(const std::string& certPath);
+		/// Creates the X509Certificate object by reading
+		/// a certificate in PEM or DER format from a file.
+
 	explicit X509Certificate(std::istream& istr);
 		/// Creates the X509Certificate object by reading
-		/// a certificate in PEM format from a stream.
+		/// a certificate in PEM or DER format from a stream.
 
-	explicit X509Certificate(const std::string& path);
-		/// Creates the X509Certificate object by reading
-		/// a certificate in PEM format from a file.
+	X509Certificate(const std::string& certName, const std::string& certStoreName, bool useMachineStore = false);
+		/// Creates the X509Certificate object by loading
+		/// a certificate from the specified certificate store.
+		///
+		/// If useSystemStore is true, the machine's certificate store is used,
+		/// otherwise the user's certificate store.
 
 	explicit X509Certificate(PCCERT_CONTEXT pCert);
 		/// Creates the X509Certificate from an existing
@@ -108,50 +115,56 @@ public:
 	Poco::DateTime expiresOn() const;
 		/// Returns the date and time the certificate expires.
 		
-	void save(std::ostream& stream) const;
-		/// Writes the certificate to the given stream.
-		/// The certificate is written in PEM format.
-
-	void save(const std::string& path) const;
-		/// Writes the certificate to the file given by path.
-		/// The certificate is written in PEM format.
-		
 	bool issuedBy(const X509Certificate& issuerCertificate) const;
 		/// Checks whether the certificate has been issued by
 		/// the issuer given by issuerCertificate. This can be
 		/// used to validate a certificate chain.
 		///
-		/// Verifies if the certificate has been signed with the
-		/// issuer's private key, using the public key from the issuer
-		/// certificate.
+		/// Verifies that the given certificate is contained in the
+		/// certificate's issuer certificate chain.
 		///
 		/// Returns true if verification against the issuer certificate
 		/// was successful, false otherwise.
+
+	bool verify(const std::string& hostName) const;
+		/// Verifies the validity of the certificate against the host name.
+		///
+		/// For this check to be successful, the certificate must contain
+		/// a domain name that matches the domain name
+		/// of the host.
+		/// 
+		/// Returns true if verification succeeded, or false otherwise.
+		
+	static bool verify(const Poco::Net::X509Certificate& cert, const std::string& hostName);
+		/// Verifies the validity of the certificate against the host name.
+		///
+		/// For this check to be successful, the certificate must contain
+		/// a domain name that matches the domain name
+		/// of the host.
+		///
+		/// Returns true if verification succeeded, or false otherwise.
 
 	const PCCERT_CONTEXT system() const;
 		/// Returns the underlying WinCrypt certificate.
 
 protected:
-	void load(std::istream& stream);
-		/// Loads the certificate from the given stream. The
-		/// certificate must be in PEM format.
-		
-	void load(const std::string& path);
-		/// Loads the certificate from the given file. The
-		/// certificate must be in PEM format.
-
 	void init();
 		/// Extracts issuer and subject name from the certificate.
 	
 	static void* nid2oid(NID nid);
 		/// Returns the OID for the given NID.
 
+	void loadCertificate(const std::string& certName, const std::string& certStoreName, bool useMachineStore);
+	void importCertificate(const std::string& certPath);
+	void importCertificate(std::istream& istr);
+	void importCertificate(const char* pBuffer, std::size_t size);
+	void importPEMCertificate(const char* pBuffer, std::size_t size);
+	void importDERCertificate(const char* pBuffer, std::size_t size);
+
+	static bool containsWildcards(const std::string& commonName);
+	static bool matchWildcard(const std::string& alias, const std::string& hostName);
+
 private:
-	enum
-	{
-		NAME_BUFFER_SIZE = 256
-	};
-	
 	std::string _issuerName;
 	std::string _subjectName;
 	PCCERT_CONTEXT _pCert;

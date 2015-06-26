@@ -38,11 +38,62 @@
 namespace Poco {
 
 
+namespace {
+
+class RunnableHolder: public Runnable
+{
+public:
+	RunnableHolder(Runnable& target):
+		_target(target)
+	{
+	}
+
+	~RunnableHolder()
+	{
+	}
+
+	void run()
+	{
+		_target.run();
+	}
+
+private:
+	Runnable& _target;
+};
+
+
+class CallableHolder: public Runnable
+{
+public:
+	CallableHolder(Thread::Callable callable, void* pData):
+		_callable(callable),
+		_pData(pData)
+	{
+	}
+
+	~CallableHolder()
+	{
+	}
+
+	void run()
+	{
+		_callable(_pData);
+	}
+
+private:
+	Thread::Callable _callable;
+	void* _pData;
+};
+
+
+} // namespace
+
+
 Thread::Thread(): 
 	_id(uniqueId()), 
 	_name(makeName()), 
 	_pTLS(0),
-	_event(true)
+	_event()
 {
 }
 
@@ -51,7 +102,7 @@ Thread::Thread(const std::string& name):
 	_id(uniqueId()), 
 	_name(name), 
 	_pTLS(0),
-	_event(true)
+	_event()
 {
 }
 
@@ -76,13 +127,13 @@ Thread::Priority Thread::getPriority() const
 
 void Thread::start(Runnable& target)
 {
-	startImpl(target);
+	startImpl(new RunnableHolder(target));
 }
 
 
 void Thread::start(Callable target, void* pData)
 {
-	startImpl(target, pData);
+	startImpl(new CallableHolder(target, pData));
 }
 
 

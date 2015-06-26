@@ -2,58 +2,58 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="Application">
-      <UniqueIdentifier>{b400c6fc-9ef0-4004-9fd2-6305bf171571}</UniqueIdentifier>
+      <UniqueIdentifier>{6fe495d6-6694-4e04-b29f-0f6a4468d51a}</UniqueIdentifier>
     </Filter>
     <Filter Include="Application\Header Files">
-      <UniqueIdentifier>{a873f75e-df65-474d-b53e-428efc021ab5}</UniqueIdentifier>
+      <UniqueIdentifier>{e8fdfb49-ef03-45a2-aaad-98af7a2b7d90}</UniqueIdentifier>
     </Filter>
     <Filter Include="Application\Source Files">
-      <UniqueIdentifier>{c79d5117-95ff-484c-ba11-511e5392cd3c}</UniqueIdentifier>
+      <UniqueIdentifier>{443d71cd-5b65-438b-b64e-af05c4084f14}</UniqueIdentifier>
     </Filter>
     <Filter Include="Configuration">
-      <UniqueIdentifier>{77cba271-8db9-421a-9aba-0c5e55d50a23}</UniqueIdentifier>
+      <UniqueIdentifier>{dd018b98-a984-404b-aad2-c2c3194ae35d}</UniqueIdentifier>
     </Filter>
     <Filter Include="Configuration\Header Files">
-      <UniqueIdentifier>{8c77580e-73a6-407f-aa55-7ee49490951c}</UniqueIdentifier>
+      <UniqueIdentifier>{be49342f-9e0f-4152-a20f-e761102cbad8}</UniqueIdentifier>
     </Filter>
     <Filter Include="Configuration\Source Files">
-      <UniqueIdentifier>{905a18e2-817d-4306-b996-236622988ab6}</UniqueIdentifier>
+      <UniqueIdentifier>{f6a098eb-c03a-4202-bab7-d3154a5b2044}</UniqueIdentifier>
     </Filter>
     <Filter Include="Options">
-      <UniqueIdentifier>{fb5c33c3-4a7d-4144-a60f-85d90149f844}</UniqueIdentifier>
+      <UniqueIdentifier>{3b198407-25af-4583-8554-83f38fc7aabf}</UniqueIdentifier>
     </Filter>
     <Filter Include="Options\Header Files">
-      <UniqueIdentifier>{57f118bc-bd49-4ff6-8873-bd7891fee4b6}</UniqueIdentifier>
+      <UniqueIdentifier>{c4c57263-f8ff-4afe-8ef2-6284b85974f9}</UniqueIdentifier>
     </Filter>
     <Filter Include="Options\Source Files">
-      <UniqueIdentifier>{1ef4d5f1-dc90-49e2-bf99-7291c52766b3}</UniqueIdentifier>
+      <UniqueIdentifier>{b0e7d4ed-0178-4f7d-b992-bb3874722d9d}</UniqueIdentifier>
     </Filter>
     <Filter Include="Windows">
-      <UniqueIdentifier>{b38fc85b-70b7-4aa2-b474-d71ce35649b5}</UniqueIdentifier>
+      <UniqueIdentifier>{9cc51694-315e-4d20-b467-6a93bdbc7100}</UniqueIdentifier>
     </Filter>
     <Filter Include="Windows\Header Files">
-      <UniqueIdentifier>{aad7d956-f7fa-4e99-989a-278e60dfc6f5}</UniqueIdentifier>
+      <UniqueIdentifier>{8273648f-e432-4224-982e-bcd5ee94beec}</UniqueIdentifier>
     </Filter>
     <Filter Include="Windows\Source Files">
-      <UniqueIdentifier>{9c4e5523-adae-495a-a7b6-ca7618cfbc55}</UniqueIdentifier>
+      <UniqueIdentifier>{8284299d-f9a0-4b1c-abe6-6797769dca65}</UniqueIdentifier>
     </Filter>
     <Filter Include="Util">
-      <UniqueIdentifier>{06e4b6be-dc93-4bfb-8e28-4a282cc9b885}</UniqueIdentifier>
+      <UniqueIdentifier>{d80019a5-58cf-4b74-87a9-207901f5ff50}</UniqueIdentifier>
     </Filter>
     <Filter Include="Util\Header Files">
-      <UniqueIdentifier>{c327731e-783e-4ba3-8c3d-907ff9d0aa87}</UniqueIdentifier>
+      <UniqueIdentifier>{01cd2232-f62c-463e-b6af-271a8dd50adf}</UniqueIdentifier>
     </Filter>
     <Filter Include="Util\Source Files">
-      <UniqueIdentifier>{6dbf8684-b459-41ff-8366-f2c32c1bbd45}</UniqueIdentifier>
+      <UniqueIdentifier>{5b01c67f-7b84-4c43-bbee-478061c31dc0}</UniqueIdentifier>
     </Filter>
     <Filter Include="Timer">
-      <UniqueIdentifier>{a316fe01-3790-40c3-b83c-dde825d4bd39}</UniqueIdentifier>
+      <UniqueIdentifier>{4410863a-7dab-498b-84e2-12860c663f1b}</UniqueIdentifier>
     </Filter>
     <Filter Include="Timer\Header Files">
-      <UniqueIdentifier>{a899188f-0737-4339-b4ba-409638cdc5b2}</UniqueIdentifier>
+      <UniqueIdentifier>{487eb310-c2ba-444c-b200-42191a9d75cf}</UniqueIdentifier>
     </Filter>
     <Filter Include="Timer\Source Files">
-      <UniqueIdentifier>{f6e3e25d-6eff-4aad-b8fd-16041655bc3a}</UniqueIdentifier>
+      <UniqueIdentifier>{49d5c28b-8175-49f3-a631-839d50baebd4}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

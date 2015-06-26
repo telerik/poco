@@ -63,7 +63,7 @@ class Data_API RecordSet: private Statement
 	///
 	/// The third (optional) argument passed to the Recordset constructor is a RowFormatter
 	/// implementation. The formatter is used in conjunction with << operator for recordset
-	/// data formating.
+	/// data formatting.
 	/// 
 	/// The number of rows in the RecordSet can be limited by specifying
 	/// a limit for the Statement.
@@ -82,12 +82,12 @@ public:
 		RowFormatter::Ptr pRowFormatter = 0);
 		/// Creates the RecordSet.
 
-	explicit RecordSet(Session& rSession, 
+	RecordSet(Session& rSession, 
 		const std::string& query,
 		RowFormatter::Ptr pRowFormatter = 0);
 		/// Creates the RecordSet.
 
-	explicit RecordSet(Session& rSession, 
+	RecordSet(Session& rSession, 
 		const std::string& query,
 		const RowFormatter& rowFormatter);
 		/// Creates the RecordSet.

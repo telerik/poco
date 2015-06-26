@@ -21,6 +21,8 @@
 
 
 // Define to enable Windows Unicode (UTF-8) support
+// NOTE: As of POCO C++ Libraries release 1.6.0, compiling POCO
+// without POCO_WIN32_UTF8 defined on Windows is deprecated.
 #define POCO_WIN32_UTF8
 
 
@@ -165,5 +167,8 @@
 // even if the _DEBUG variable is not set.
 // This allows the use of these macros in a release version.
 // #define POCO_LOG_DEBUG
+
+// Uncomment to disable the use of bundled OpenSSL binaries
+// #define POCO_EXTERNAL_OPENSSL
 
 #endif // Foundation_Config_INCLUDED

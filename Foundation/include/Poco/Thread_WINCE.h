@@ -22,6 +22,7 @@
 
 #include "Poco/Foundation.h"
 #include "Poco/Runnable.h"
+#include "Poco/SharedPtr.h"
 #include "Poco/UnWindows.h"
 
 
@@ -35,20 +36,10 @@ namespace Poco {
 
 class Foundation_API ThreadImpl
 {
-public:	
-    typedef DWORD TIDImpl;
+public:
+	typedef DWORD TIDImpl;
 	typedef void (*Callable)(void*);
-	typedef DWORD (WINAPI *Entry)(LPVOID);
-
-	struct CallbackData
-	{
-		CallbackData(): callback(0), pData(0)
-		{
-		}
-
-		Callable  callback;
-		void*     pData; 
-	};
+	typedef DWORD (WINAPI* Entry)(LPVOID);
 
 	enum Priority
 	{
@@ -64,7 +55,7 @@ public:
 		POLICY_DEFAULT_IMPL = 0
 	};
 
-	ThreadImpl();				
+	ThreadImpl();
 	~ThreadImpl();
 
 	TIDImpl tidImpl() const;
@@ -76,9 +67,9 @@ public:
 	static int getMaxOSPriorityImpl(int policy);
 	void setStackSizeImpl(int size);
 	int getStackSizeImpl() const;
-	void startImpl(Runnable& target);
-	void startImpl(Callable target, void* pData = 0);
-
+	void setAffinityImpl(int cpu);
+	int getAffinityImpl() const;
+	void startImpl(SharedPtr<Runnable> pTarget);
 	void joinImpl();
 	bool joinImpl(long milliseconds);
 	bool isRunningImpl() const;
@@ -89,7 +80,6 @@ public:
 
 protected:
 	static DWORD WINAPI runnableEntry(LPVOID pThread);
-	static DWORD WINAPI callableEntry(LPVOID pThread);
 
 	void createImpl(Entry ent, void* pData);
 	void threadCleanup();
@@ -115,13 +105,12 @@ private:
 		{
 			TlsSetValue(_slot, pThread);
 		}
-	
+
 	private:
 		DWORD _slot;
 	};
 
-	Runnable*    _pRunnableTarget;
-	CallbackData _callbackTarget;
+	SharedPtr<Runnable> _pRunnableTarget;
 	HANDLE       _thread;
 	DWORD        _threadId;
 	int          _prio;
@@ -155,6 +144,18 @@ inline int ThreadImpl::getMinOSPriorityImpl(int /* policy */)
 inline int ThreadImpl::getMaxOSPriorityImpl(int /* policy */)
 {
 	return PRIO_HIGHEST_IMPL;
+}
+
+
+inline void ThreadImpl::setAffinityImpl(int)
+{
+	// not supported
+}
+
+
+inline int ThreadImpl::getAffinityImpl() const
+{
+	return -1;
 }
 
 

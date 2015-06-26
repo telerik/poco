@@ -1,7 +1,7 @@
 <Configuration
 	Name="release_shared|${project.platform}"
 	OutputDirectory="${project.outdir}\bin\$(PlatformName)"
-	IntermediateDirectory="obj\$(PlatformName)\$(ConfigurationName)"
+	IntermediateDirectory="obj\${project.name}\$(PlatformName)\$(ConfigurationName)"
 	ConfigurationType="2"
 	CharacterSet="2"
 	>
@@ -17,7 +17,7 @@
 	<Tool
 		Name="VCCLCompilerTool"
 		ExecutionBucket="7"
-		Optimization="4"
+		Optimization="2"
 		EnableIntrinsicFunctions="true"
 		FavorSizeOrSpeed="1"
 		AdditionalIncludeDirectories=".\include;${configuration.compiler.includes}"

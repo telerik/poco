@@ -58,7 +58,6 @@ union Placeholder
 	/// where the object was allocated (0 => heap, 1 => local).
 {
 public:
-
 	struct Size
 	{
 		static const unsigned int value = SizeV;
@@ -86,7 +85,7 @@ public:
 
 	PlaceholderT* content() const
 	{
-		if(isLocal())
+		if (isLocal())
 			return reinterpret_cast<PlaceholderT*>(holder);
 		else
 			return pHolder;
@@ -192,9 +191,9 @@ public:
 		/// Destructor. If Any is locally held, calls ValueHolder destructor;
 		/// otherwise, deletes the placeholder from the heap.
 	{
-		if(!empty())
+		if (!empty())
 		{
-			if(_valueHolder.isLocal())
+			if (_valueHolder.isLocal())
 				destruct();
 			else
 				delete content();
@@ -204,7 +203,7 @@ public:
 	Any& swap(Any& other)
 		/// Swaps the content of the two Anys.
 		/// 
-		/// When small object optimizaton is enabled, swap only
+		/// When small object optimization is enabled, swap only
 		/// has no-throw guarantee when both (*this and other)
 		/// objects are allocated on the heap.
 	{
@@ -341,7 +340,7 @@ private:
 
 	void construct(const Any& other)
 	{
-		if(!other.empty())
+		if (!other.empty())
 			other.content()->clone(&_valueHolder);
 		else
 			_valueHolder.erase();
@@ -517,7 +516,7 @@ ValueType AnyCast(Any& operand)
 	/// Example Usage: 
 	///	 MyType tmp = AnyCast<MyType>(anAny).
 	/// Will throw a BadCastException if the cast fails.
-	/// Dont use an AnyCast in combination with references, i.e. MyType& tmp = ... or const MyType& tmp = ...
+	/// Do not use an AnyCast in combination with references, i.e. MyType& tmp = ... or const MyType& tmp = ...
 	/// Some compilers will accept this code although a copy is returned. Use the RefAnyCast in
 	/// these cases.
 {
@@ -536,7 +535,7 @@ ValueType AnyCast(const Any& operand)
 	/// Example Usage: 
 	///	 MyType tmp = AnyCast<MyType>(anAny).
 	/// Will throw a BadCastException if the cast fails.
-	/// Dont use an AnyCast in combination with references, i.e. MyType& tmp = ... or const MyType& = ...
+	/// Do not use an AnyCast in combination with references, i.e. MyType& tmp = ... or const MyType& = ...
 	/// Some compilers will accept this code although a copy is returned. Use the RefAnyCast in
 	/// these cases.
 {

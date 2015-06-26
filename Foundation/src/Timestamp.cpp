@@ -18,6 +18,9 @@
 #include "Poco/Timespan.h"
 #include "Poco/Exception.h"
 #include <algorithm>
+#undef min
+#undef max
+#include <limits>
 #if defined(POCO_OS_FAMILY_UNIX)
 #include <time.h>
 #include <unistd.h>
@@ -35,7 +38,7 @@
 #endif
 
 
-#if defined(_WIN32_WCE)
+#if defined(_WIN32_WCE) && defined(POCO_WINCE_TIMESTAMP_HACK)
 
 
 //
@@ -135,10 +138,14 @@ void GetSystemTimeAsFileTimeWithMillisecondResolution(FILETIME* pFT)
 } // namespace
 
 
-#endif // defined(_WIN32_WCE)
+#endif // defined(_WIN32_WCE) && defined(POCO_WINCE_TIMESTAMP_HACK)
 
 
 namespace Poco {
+
+
+const Timestamp::TimeVal Timestamp::TIMEVAL_MIN = std::numeric_limits<Timestamp::TimeVal>::min();
+const Timestamp::TimeVal Timestamp::TIMEVAL_MAX = std::numeric_limits<Timestamp::TimeVal>::max();
 
 
 Timestamp::Timestamp()
@@ -203,7 +210,7 @@ void Timestamp::update()
 #if defined(POCO_OS_FAMILY_WINDOWS)
 
 	FILETIME ft;
-#if defined(_WIN32_WCE)
+#if defined(_WIN32_WCE) && defined(POCO_WINCE_TIMESTAMP_HACK)
 	GetSystemTimeAsFileTimeWithMillisecondResolution(&ft);
 #else
 	GetSystemTimeAsFileTime(&ft);

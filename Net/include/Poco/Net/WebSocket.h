@@ -23,6 +23,7 @@
 #include "Poco/Net/Net.h"
 #include "Poco/Net/StreamSocket.h"
 #include "Poco/Net/HTTPCredentials.h"
+#include "Poco/Buffer.h"
 
 
 namespace Poco {
@@ -64,7 +65,7 @@ public:
 		FRAME_FLAG_FIN  = 0x80, /// FIN bit: final fragment of a multi-fragment message.
 		FRAME_FLAG_RSV1 = 0x40, /// Reserved for future use. Must be zero.
 		FRAME_FLAG_RSV2 = 0x20, /// Reserved for future use. Must be zero.
-		FRAME_FLAG_RSV3 = 0x10, /// Reserved for future use. Must be zero.
+		FRAME_FLAG_RSV3 = 0x10  /// Reserved for future use. Must be zero.
 	};
 
 	enum FrameOpcodes
@@ -76,7 +77,8 @@ public:
 		FRAME_OP_CLOSE   = 0x08, /// Close connection.
 		FRAME_OP_PING    = 0x09, /// Ping frame.
 		FRAME_OP_PONG    = 0x0a, /// Pong frame.
-		FRAME_OP_BITMASK = 0x0f  /// Bit mask for opcodes. 
+		FRAME_OP_BITMASK = 0x0f, /// Bit mask for opcodes. 
+		FRAME_OP_SETRAW  = 0x100 /// Set raw flags (for use with sendBytes() and FRAME_OP_CONT).
 	};
 	
 	enum SendFlags
@@ -220,6 +222,21 @@ public:
 		/// The frame flags and opcode (FrameFlags and FrameOpcodes)
 		/// is stored in flags.
 		
+	int receiveFrame(Poco::Buffer<char>& buffer, int& flags);
+		/// Receives a frame from the socket and stores it
+		/// after any previous content in buffer.
+		///
+		/// Returns the number of bytes received.
+		/// A return value of 0 means that the peer has
+		/// shut down or closed the connection.
+		///
+		/// Throws a TimeoutException if a receive timeout has
+		/// been set and nothing is received within that interval.
+		/// Throws a NetException (or a subclass) in case of other errors.
+		///
+		/// The frame flags and opcode (FrameFlags and FrameOpcodes)
+		/// is stored in flags.
+
 	Mode mode() const;
 		/// Returns WS_SERVER if the WebSocket is a server-side
 		/// WebSocket, or WS_CLIENT otherwise.

@@ -30,6 +30,11 @@
 
 
 namespace Poco {
+
+
+class Thread;
+
+
 namespace Net {
 
 
@@ -78,7 +83,7 @@ class Net_API SocketReactor: public Poco::Runnable
 	/// becomes writable. The ErrorNotification will be dispatched if
 	/// there is an error condition on a socket.
 	///
-	/// If the timeout expires and no event has occured, a
+	/// If the timeout expires and no event has occurred, a
 	/// TimeoutNotification will be dispatched to all event handlers
 	/// registered for it. This is done in the onTimeout() method
 	/// which can be overridden by subclasses to perform custom
@@ -128,6 +133,9 @@ public:
 		/// The reactor will be stopped when the next event
 		/// (including a timeout event) occurs.
 
+	void wakeUp();
+		/// Wakes up idle reactor.
+
 	void setTimeout(const Poco::Timespan& timeout);
 		/// Sets the timeout. 
 		///
@@ -150,7 +158,7 @@ public:
 		///     reactor.addEventHandler(obs);
 
 	bool hasEventHandler(const Socket& socket, const Poco::AbstractObserver& observer);
-		/// Returns true if the observer is reistered with SocketReactor for the given socket.
+		/// Returns true if the observer is registered with SocketReactor for the given socket.
 
 	void removeEventHandler(const Socket& socket, const Poco::AbstractObserver& observer);
 		/// Unregisters an event handler with the SocketReactor.
@@ -166,7 +174,7 @@ protected:
 		/// Can be overridden by subclasses. The default implementation
 		/// dispatches the TimeoutNotification and thus should be called by overriding
 		/// implementations.
-		
+
 	virtual void onIdle();
 		/// Called if no sockets are available to call select() on.
 		///
@@ -194,7 +202,7 @@ protected:
 		
 	void dispatch(SocketNotification* pNotification);
 		/// Dispatches the given notification to all observers.
-		
+
 private:
 	typedef Poco::AutoPtr<SocketNotifier>     NotifierPtr;
 	typedef Poco::AutoPtr<SocketNotification> NotificationPtr;
@@ -206,7 +214,7 @@ private:
 	{
 		DEFAULT_TIMEOUT = 250000
 	};
-		
+
 	bool            _stop;
 	Poco::Timespan  _timeout;
 	EventHandlerMap _handlers;
@@ -217,6 +225,7 @@ private:
 	NotificationPtr _pIdleNotification;
 	NotificationPtr _pShutdownNotification;
 	Poco::FastMutex _mutex;
+	Poco::Thread*   _pThread;
 	
 	friend class SocketNotifier;
 };

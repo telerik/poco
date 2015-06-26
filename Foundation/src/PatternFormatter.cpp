@@ -34,18 +34,16 @@ const std::string PatternFormatter::PROP_TIMES   = "times";
 
 
 PatternFormatter::PatternFormatter():
-	_localTime(false),
-	_localTimeOffset(Timestamp::resolution()*(Timezone::utcOffset() + Timezone::dst()))
+	_localTime(false)
 {
 }
 
 
 PatternFormatter::PatternFormatter(const std::string& format):
 	_localTime(false),
-	_localTimeOffset(Timestamp::resolution()*(Timezone::utcOffset() + Timezone::dst())),
 	_pattern(format)
 {
-	ParsePattern();
+	parsePattern();
 }
 
 
@@ -60,7 +58,8 @@ void PatternFormatter::format(const Message& msg, std::string& text)
 	bool localTime = _localTime;
 	if (localTime)
 	{
-		timestamp  += _localTimeOffset;
+		timestamp += Timezone::utcOffset()*Timestamp::resolution();
+		timestamp += Timezone::dst()*Timestamp::resolution();
 	}
 	DateTime dateTime = timestamp;
 	for (std::vector<PatternAction>::iterator ip = _patternActions.begin(); ip != _patternActions.end(); ++ip)
@@ -76,6 +75,7 @@ void PatternFormatter::format(const Message& msg, std::string& text)
 		case 'P': NumberFormatter::append(text, msg.getPid()); break;
 		case 'T': text.append(msg.getThread()); break;
 		case 'I': NumberFormatter::append(text, msg.getTid()); break;
+		case 'O': NumberFormatter::append(text, msg.getOsTid()); break;
 		case 'N': text.append(Environment::nodeName()); break;
 		case 'U': text.append(msg.getSourceFile() ? msg.getSourceFile() : ""); break;
 		case 'u': NumberFormatter::append(text, msg.getSourceLine()); break;
@@ -124,7 +124,8 @@ void PatternFormatter::format(const Message& msg, std::string& text)
 			if (!localTime)
 			{
 				localTime = true;
-				timestamp  += _localTimeOffset;
+				timestamp += Timezone::utcOffset()*Timestamp::resolution();
+				timestamp += Timezone::dst()*Timestamp::resolution();
 				dateTime = timestamp;
 			}
 			break;
@@ -132,7 +133,8 @@ void PatternFormatter::format(const Message& msg, std::string& text)
 	}
 }
 
-void PatternFormatter::ParsePattern()
+
+void PatternFormatter::parsePattern()
 {
 	_patternActions.clear();
 	std::string::const_iterator it  = _pattern.begin();
@@ -196,7 +198,7 @@ void PatternFormatter::setProperty(const std::string& name, const std::string& v
 	if (name == PROP_PATTERN)
 	{
 		_pattern = value;
-		ParsePattern();
+		parsePattern();
 	}
 	else if (name == PROP_TIMES)
 	{

@@ -1,7 +1,7 @@
 //
 // HTTPSServerTest.cpp
 //
-// $Id: //poco/1.4/NetSSL_Win/testsuite/src/HTTPSServerTest.cpp#1 $
+// $Id$
 //
 // Copyright (c) 2006-2014, Applied Informatics Software Engineering GmbH.
 // and Contributors.
@@ -27,6 +27,7 @@
 #include <sstream>
 
 
+using Poco::Net::Context;
 using Poco::Net::HTTPServer;
 using Poco::Net::HTTPServerParams;
 using Poco::Net::HTTPRequestHandler;
@@ -203,7 +204,8 @@ void HTTPSServerTest::testIdentityRequestKeepAlive()
 	assert (response.getContentLength() == body.size());
 	assert (response.getContentType() == "text/plain");
 	assert (!response.getKeepAlive());
-	assert (rbody == body);}
+	assert (rbody == body);
+}
 
 
 void HTTPSServerTest::testChunkedRequestKeepAlive()

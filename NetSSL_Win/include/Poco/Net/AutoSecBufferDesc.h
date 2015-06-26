@@ -1,9 +1,9 @@
 //
 // AutoSecBufferDesc.h
 //
-// $Id: //poco/1.4/NetSSL_Schannel/include/Poco/Net/AutoSecBufferDesc.h#1 $
+// $Id$
 //
-// Library: NetSSL_Schannel
+// Library: NetSSL_Win
 // Package: SSLCore
 // Module:  AutoSecBufferDesc
 //
@@ -52,57 +52,34 @@ public:
 		ulVersion = SECBUFFER_VERSION;
 	}
 
-	AutoSecBufferDesc(const AutoSecBufferDesc& desc):
-		/// Creates a AutoSecBufferDesc from another buffer, resets the other buffer!
-		_pSec(desc._pSec),
-		_autoRelease(desc._autoRelease)
-	{
-		poco_check_ptr (_pSec);
-		poco_static_assert (numBufs > 0);
-		
-		for (int i = 0; i < numBufs; ++i)
-		{
-			_buffers[i].pvBuffer   = desc._buffers[i].pvBuffer;
-			_buffers[i].cbBuffer   = desc._buffers[i].cbBuffer;
-			_buffers[i].BufferType = desc._buffers[i].BufferType;
-		}
-		cBuffers = numBufs;
-		pBuffers = _buffers;
-		ulVersion = SECBUFFER_VERSION;
-		// steal the buffers from the original one
-		const_cast<AutoSecBufferDesc*>(&desc)->initBuffers();
-	}
-
-	AutoSecBufferDesc& operator=(const AutoSecBufferDesc& desc)
-	{
-		if (&desc != this)
-		{
-			_pSec = desc._pSec;
-			_autoRelease = desc._autoRelease;
-			for (int i = 0; i < numBufs; ++i)
-			{
-				_buffers[i].pvBuffer   = desc._buffers[i].pvBuffer;
-				_buffers[i].cbBuffer   = desc._buffers[i].cbBuffer;
-				_buffers[i].BufferType = desc._buffers[i].BufferType;
-			}
-			cBuffers = numBufs;
-			pBuffers = _buffers;
-			ulVersion = desc.ulVersion;
-			// steal the buffers from the original one
-			const_cast<AutoSecBufferDesc*>(&desc)->initBuffers();
-		}
-		return *this;
-	}
-
 	~AutoSecBufferDesc()
 		/// Destroys the AutoSecBufferDesc
+	{
+		release();
+	}
+
+	void reset(bool autoRelease)
+	{
+		release();
+		_autoRelease = autoRelease;
+		initBuffers();
+		cBuffers  = numBufs;
+		pBuffers  = _buffers;
+		ulVersion = SECBUFFER_VERSION;
+	}
+
+	void release()
 	{
 		if (_autoRelease)
 		{
 			for (int i = 0; i < numBufs; ++i)
 			{
-				_pSec->FreeContextBuffer(_buffers[i].pvBuffer);
+				if (_buffers[i].pvBuffer)
+				{
+					_pSec->FreeContextBuffer(_buffers[i].pvBuffer);
+				}
 			}
+			_autoRelease = false;
 		}
 	}
 
@@ -148,6 +125,9 @@ public:
 	}
 
 private:
+	AutoSecBufferDesc(const AutoSecBufferDesc& desc);
+	AutoSecBufferDesc& operator = (const AutoSecBufferDesc& desc);
+
 	void release(int idx, bool force)
 	{
 		if (force && _buffers[idx].pvBuffer)

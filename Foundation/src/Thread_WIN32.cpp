@@ -23,40 +23,39 @@
 #if defined(POCO_WIN32_DEBUGGER_THREAD_NAMES)
 
 
-namespace
-{
-	/// See <http://msdn.microsoft.com/en-us/library/xcb2z8hs.aspx> 
-	/// and <http://blogs.msdn.com/b/stevejs/archive/2005/12/19/505815.aspx> for
-	/// more information on the code below.
+namespace {
+/// See <http://msdn.microsoft.com/en-us/library/xcb2z8hs.aspx>
+/// and <http://blogs.msdn.com/b/stevejs/archive/2005/12/19/505815.aspx> for
+/// more information on the code below.
 
-	const DWORD MS_VC_EXCEPTION = 0x406D1388;
-	
-	#pragma pack(push,8)
-	typedef struct tagTHREADNAME_INFO
+const DWORD MS_VC_EXCEPTION = 0x406D1388;
+
+#pragma pack(push,8)
+typedef struct tagTHREADNAME_INFO
+{
+	DWORD dwType;     // Must be 0x1000.
+	LPCSTR szName;    // Pointer to name (in user addr space).
+	DWORD dwThreadID; // Thread ID (-1=caller thread).
+	DWORD dwFlags;    // Reserved for future use, must be zero.
+} THREADNAME_INFO;
+#pragma pack(pop)
+
+void setThreadName(DWORD dwThreadID, const char* threadName)
+{
+	THREADNAME_INFO info;
+	info.dwType     = 0x1000;
+	info.szName     = threadName;
+	info.dwThreadID = dwThreadID;
+	info.dwFlags    = 0;
+
+	__try
 	{
-		DWORD dwType;     // Must be 0x1000.
-		LPCSTR szName;    // Pointer to name (in user addr space).
-		DWORD dwThreadID; // Thread ID (-1=caller thread).
-		DWORD dwFlags;    // Reserved for future use, must be zero.
-	} THREADNAME_INFO;
-	#pragma pack(pop)
-	
-	void setThreadName(DWORD dwThreadID, const char* threadName)
-	{
-        THREADNAME_INFO info;
-        info.dwType     = 0x1000;
-        info.szName     = threadName;
-        info.dwThreadID = dwThreadID;
-        info.dwFlags    = 0;
-    
-        __try
-        {
-            RaiseException(MS_VC_EXCEPTION, 0, sizeof(info)/sizeof(ULONG_PTR), (ULONG_PTR*)&info);
-        }
-        __except (EXCEPTION_CONTINUE_EXECUTION)
-        {
-        }
+		RaiseException(MS_VC_EXCEPTION, 0, sizeof(info)/sizeof(ULONG_PTR), (ULONG_PTR*)&info);
 	}
+	__except (EXCEPTION_CONTINUE_EXECUTION)
+	{
+	}
+}
 }
 
 
@@ -70,11 +69,11 @@ ThreadImpl::CurrentThreadHolder ThreadImpl::_currentThreadHolder;
 
 
 ThreadImpl::ThreadImpl():
-	_pRunnableTarget(0),
 	_thread(0),
 	_threadId(0),
 	_prio(PRIO_NORMAL_IMPL),
-	_stackSize(POCO_THREAD_STACK_SIZE)
+	_stackSize(POCO_THREAD_STACK_SIZE),
+	_cpu(-1)
 {
 }
 
@@ -105,27 +104,31 @@ void ThreadImpl::setOSPriorityImpl(int prio, int /* policy */)
 }
 
 
-void ThreadImpl::startImpl(Runnable& target)
+void ThreadImpl::setAffinityImpl(int cpu)
 {
-	if (isRunningImpl())
-		throw SystemException("thread already running");
-
-	_pRunnableTarget = &target;
-
-	createImpl(runnableEntry, this);
+	DWORD mask = 1;
+	mask <<= cpu;
+	if (SetThreadAffinityMask(_thread, mask) == 0)
+	{
+		throw SystemException("Failed to set affinity");
+	}
+	_cpu = cpu;
 }
 
 
-void ThreadImpl::startImpl(Callable target, void* pData)
+int ThreadImpl::getAffinityImpl() const
+{
+	return _cpu;
+}
+
+
+void ThreadImpl::startImpl(SharedPtr<Runnable> pTarget)
 {
 	if (isRunningImpl())
 		throw SystemException("thread already running");
 
-	threadCleanup();
-	_callbackTarget.callback = target;
-	_callbackTarget.pData = pData;
-
-	createImpl(callableEntry, this);
+	_pRunnableTarget = pTarget;
+	createImpl(runnableEntry, this);
 }
 
 
@@ -220,37 +223,6 @@ unsigned __stdcall ThreadImpl::runnableEntry(void* pThread)
 	try
 	{
 		reinterpret_cast<ThreadImpl*>(pThread)->_pRunnableTarget->run();
-	}
-	catch (Exception& exc)
-	{
-		ErrorHandler::handle(exc);
-	}
-	catch (std::exception& exc)
-	{
-		ErrorHandler::handle(exc);
-	}
-	catch (...)
-	{
-		ErrorHandler::handle();
-	}
-	return 0;
-}
-
-
-#if defined(_DLL)
-DWORD WINAPI ThreadImpl::callableEntry(LPVOID pThread)
-#else
-unsigned __stdcall ThreadImpl::callableEntry(void* pThread)
-#endif
-{
-	_currentThreadHolder.set(reinterpret_cast<ThreadImpl*>(pThread));
-#if defined(POCO_WIN32_DEBUGGER_THREAD_NAMES)
-	setThreadName(-1, reinterpret_cast<Thread*>(pThread)->getName().c_str());
-#endif
-	try
-	{
-		ThreadImpl* pTI = reinterpret_cast<ThreadImpl*>(pThread);
-		pTI->_callbackTarget.callback(pTI->_callbackTarget.pData);
 	}
 	catch (Exception& exc)
 	{

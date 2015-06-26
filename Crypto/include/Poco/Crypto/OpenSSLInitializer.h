@@ -22,8 +22,10 @@
 
 #include "Poco/Crypto/Crypto.h"
 #include "Poco/Mutex.h"
-#include <openssl/opensslconf.h>
-#ifdef OPENSSL_FIPS
+#include "Poco/AtomicCounter.h"
+#include <openssl/crypto.h>
+#include <openssl/opensslv.h>
+#if defined(OPENSSL_FIPS) && OPENSSL_VERSION_NUMBER < 0x010001000L
 #include <openssl/fips.h>
 #endif
 
@@ -66,6 +68,8 @@ public:
 	static void enableFIPSMode(bool enabled);
 		// Enable or disable FIPS mode. If FIPS is not available, this method doesn't do anything.
 
+    static void disableSSLInitialization(); // Call if OpenSSL is already being initialized by another component before constructing any OpenSSLInitializers.
+
 protected:
 	enum
 	{
@@ -81,8 +85,8 @@ protected:
 
 private:
 	static Poco::FastMutex* _mutexes;
-	static Poco::FastMutex _mutex;
-	static int _rc;
+	static Poco::AtomicCounter _rc;
+    static bool _disableSSLInitialization;
 };
 
 
@@ -108,6 +112,12 @@ inline void OpenSSLInitializer::enableFIPSMode(bool /*enabled*/)
 {
 }
 #endif
+
+inline void OpenSSLInitializer::disableSSLInitialization()
+{
+    _disableSSLInitialization = true;
+}
+
 
 } } // namespace Poco::Crypto
 

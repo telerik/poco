@@ -140,7 +140,7 @@ public:
 	}
 
 	~CopyBinding()
-		/// Destroys the Binding.
+		/// Destroys the CopyBinding.
 	{
 	}
 
@@ -264,7 +264,7 @@ public:
 	}
 
 	~CopyBinding()
-		/// Destroys the Binding.
+		/// Destroys the CopyBinding.
 	{
 	}
 
@@ -396,7 +396,7 @@ public:
 	}
 
 	~CopyBinding()
-		/// Destroys the Binding.
+		/// Destroys the CopyBinding.
 	{
 	}
 
@@ -559,7 +559,7 @@ public:
 	}
 
 	~CopyBinding()
-		/// Destroys the Binding.
+		/// Destroys the CopyBinding.
 	{
 	}
 
@@ -689,7 +689,7 @@ public:
 	}
 
 	~CopyBinding()
-		/// Destroys the Binding.
+		/// Destroys the CopyBinding.
 	{
 	}
 
@@ -819,7 +819,7 @@ public:
 	}
 
 	~CopyBinding()
-		/// Destroys the Binding.
+		/// Destroys the CopyBinding.
 	{
 	}
 
@@ -949,7 +949,7 @@ public:
 	}
 
 	~CopyBinding()
-		/// Destroys the Binding.
+		/// Destroys the CopyBinding.
 	{
 	}
 
@@ -1079,7 +1079,7 @@ public:
 	}
 
 	~CopyBinding()
-		/// Destroys the Binding.
+		/// Destroys the CopyBinding.
 	{
 	}
 
@@ -1209,7 +1209,7 @@ public:
 	}
 
 	~CopyBinding()
-		/// Destroys the Binding.
+		/// Destroys the CopyBinding.
 	{
 	}
 
@@ -1339,7 +1339,7 @@ public:
 	}
 
 	~CopyBinding()
-		/// Destroys the Binding.
+		/// Destroys the CopyBinding.
 	{
 	}
 
@@ -1474,7 +1474,7 @@ inline AbstractBindingVec& io(AbstractBindingVec& bv)
 template <typename T> 
 inline AbstractBinding::Ptr bind(T t, const std::string& name)
 	/// Convenience function for a more compact Binding creation.
-	/// This funtion differs from use() in its value copy semantics.
+	/// This function differs from use() in its value copy semantics.
 {
 	return new CopyBinding<T>(t, name, AbstractBinding::PD_IN);
 }
@@ -1483,7 +1483,7 @@ inline AbstractBinding::Ptr bind(T t, const std::string& name)
 template <typename T> 
 inline AbstractBinding::Ptr bind(T t)
 	/// Convenience function for a more compact Binding creation.
-	/// This funtion differs from use() in its value copy semantics.
+	/// This function differs from use() in its value copy semantics.
 {
 	return Poco::Data::Keywords::bind(t, "");
 }

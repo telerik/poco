@@ -38,6 +38,11 @@ class BasicFIFOBuffer
 	/// empty/non-empty/full (i.e. writable/readable) transition
 	/// notifications. Buffer can be flagged with end-of-file and
 	/// error flags, which renders it un-readable/writable.
+	///
+	/// Critical portions of code are protected by a recursive mutex.
+	/// However, to achieve thread-safety in cases where multiple
+	/// member function calls are involved and have to be atomic,
+	/// the mutex must be locked externally.
 	/// 
 	/// Buffer size, as well as amount of unread data and
 	/// available space introspections are supported as well.
@@ -83,7 +88,7 @@ public:
 	{
 	}
 
-	explicit BasicFIFOBuffer(T* pBuffer, std::size_t size, bool notify = false):
+	BasicFIFOBuffer(T* pBuffer, std::size_t size, bool notify = false):
 		_buffer(pBuffer, size),
 		_begin(0),
 		_used(0),
@@ -94,7 +99,7 @@ public:
 	{
 	}
 
-	explicit BasicFIFOBuffer(const T* pBuffer, std::size_t size, bool notify = false):
+	BasicFIFOBuffer(const T* pBuffer, std::size_t size, bool notify = false):
 		_buffer(pBuffer, size),
 		_begin(0),
 		_used(size),
@@ -170,11 +175,11 @@ public:
 	
 	std::size_t read(T* pBuffer, std::size_t length)
 		/// Copies the data currently in the FIFO
-		/// into the supplied buffer.
-		/// Resizes the supplied buffer to the size of
-		/// data written to it.
+		/// into the supplied buffer, which must be
+		/// preallocated to at least the length size
+		/// before calling this function.
 		/// 
-		/// Returns the reference to the buffer.
+		/// Returns the size of the copied data.
 	{
 		if (0 == length) return 0;
 		Mutex::ScopedLock lock(_mutex);
@@ -197,7 +202,7 @@ public:
 		/// Resizes the supplied buffer to the size of
 		/// data written to it.
 		/// 
-		/// Returns the reference to the buffer.
+		/// Returns the size of the copied data.
 	{
 		Mutex::ScopedLock lock(_mutex);
 		if (!isReadable()) return 0;
@@ -232,14 +237,14 @@ public:
 		
 		if (_buffer.size() - (_begin + _used) < length)
 		{
-			std::memmove(_buffer.begin(), _buffer.begin() + _begin, _used);
+			std::memmove(_buffer.begin(), begin(), _used * sizeof(T));
 			_begin = 0;
 		}
 
 		std::size_t usedBefore = _used;
 		std::size_t available =  _buffer.size() - _used - _begin;
 		std::size_t len = length > available ? available : length;
-		std::memcpy(_buffer.begin() + _begin + _used, pBuffer, len * sizeof(T));
+		std::memcpy(begin() + _used, pBuffer, len * sizeof(T));
 		_used += len;
 		poco_assert (_used <= _buffer.size());
 		if (_notify) notify(usedBefore);
@@ -258,14 +263,10 @@ public:
 		/// 
 		/// Returns the length of data written.
 	{
-		std::size_t len = length;
+		if (length == 0 || length > buffer.size())
+			length = buffer.size();
 
-		if (len == 0)
-			len = buffer.size();
-		else if (len > buffer.size())
-			len = buffer.size();
-
-		return write(buffer.begin(), len);
+		return write(buffer.begin(), length);
 	}
 
 	std::size_t size() const
@@ -283,7 +284,7 @@ public:
 	std::size_t available() const
 		/// Returns the size of the available portion of the buffer.
 	{
-		return _buffer.size() - _used;
+		return size() - _used;
 	}
 
 	void drain(std::size_t length = 0)
@@ -301,7 +302,10 @@ public:
 			_used = 0;
 		}
 		else
+		{
+			_begin += length;
 			_used -= length;
+		}
 
 		if (_notify) notify(usedBefore);
 	}
@@ -321,7 +325,7 @@ public:
 		if (!isWritable())
 			throw Poco::InvalidAccessException("Buffer not writable.");
 
-		std::memcpy(&_buffer[_used], ptr, length);
+		std::memcpy(&_buffer[_used], ptr, length * sizeof(T));
 		std::size_t usedBefore = _used;
 		_used += length;
 		if (_notify) notify(usedBefore);
@@ -340,6 +344,12 @@ public:
 		if (!isWritable())
 			throw Poco::InvalidAccessException("Buffer not writable.");
 
+		if (_buffer.size() - (_begin + _used) < length)
+		{
+			std::memmove(_buffer.begin(), begin(), _used * sizeof(T));
+			_begin = 0;
+		}
+
 		std::size_t usedBefore = _used;
 		_used += length;
 		if (_notify) notify(usedBefore);
@@ -348,16 +358,23 @@ public:
 	T* begin()
 		/// Returns the pointer to the beginning of the buffer.
 	{
+		Mutex::ScopedLock lock(_mutex);
+		if (_begin != 0)
+		{
+			// Move the data to the start of the buffer so begin() and next()
+			// always return consistent pointers with each other and allow writing
+			// to the end of the buffer.
+			std::memmove(_buffer.begin(), _buffer.begin() + _begin, _used * sizeof(T));
+			_begin = 0;
+		}
 		return _buffer.begin();
 	}
 
 	T* next()
 		/// Returns the pointer to the next available position in the buffer.
 	{
-		if (available() == 0)
-			throw InvalidAccessException("Buffer is full.");
-
-		return _buffer.begin() + _used;
+		Mutex::ScopedLock lock(_mutex);
+		return begin() + _used;
 	}
 
 	T& operator [] (std::size_t index)
@@ -492,6 +509,12 @@ public:
 		/// Returns true if notifications are enabled, false otherwise.
 	{
 		return _notify;
+	}
+
+	Mutex& mutex()
+		/// Returns reference to mutex.
+	{
+		return _mutex;
 	}
 
 private:

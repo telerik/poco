@@ -22,6 +22,7 @@
 
 #include "Poco/Foundation.h"
 #include "Poco/Runnable.h"
+#include "Poco/SharedPtr.h"
 #include "Poco/UnWindows.h"
 
 
@@ -30,25 +31,15 @@ namespace Poco {
 
 class Foundation_API ThreadImpl
 {
-public:	
+public:
 	typedef DWORD TIDImpl;
 	typedef void (*Callable)(void*);
 
 #if defined(_DLL)
-	typedef DWORD (WINAPI *Entry)(LPVOID);
+	typedef DWORD (WINAPI* Entry)(LPVOID);
 #else
-	typedef unsigned (__stdcall *Entry)(void*);
+	typedef unsigned (__stdcall* Entry)(void*);
 #endif
-
-	struct CallbackData
-	{
-		CallbackData(): callback(0), pData(0)
-		{
-		}
-
-		Callable  callback;
-		void*     pData; 
-	};
 
 	enum Priority
 	{
@@ -64,7 +55,7 @@ public:
 		POLICY_DEFAULT_IMPL = 0
 	};
 
-	ThreadImpl();				
+	ThreadImpl();
 	~ThreadImpl();
 
 	TIDImpl tidImpl() const;
@@ -75,10 +66,10 @@ public:
 	static int getMinOSPriorityImpl(int policy);
 	static int getMaxOSPriorityImpl(int policy);
 	void setStackSizeImpl(int size);
+	void setAffinityImpl(int cpu);
+	int getAffinityImpl() const;
 	int getStackSizeImpl() const;
-	void startImpl(Runnable& target);
-	void startImpl(Callable target, void* pData = 0);
-
+	void startImpl(SharedPtr<Runnable> pTarget);
 	void joinImpl();
 	bool joinImpl(long milliseconds);
 	bool isRunningImpl() const;
@@ -86,18 +77,12 @@ public:
 	static void yieldImpl();
 	static ThreadImpl* currentImpl();
 	static TIDImpl currentTidImpl();
-    
+
 protected:
 #if defined(_DLL)
 	static DWORD WINAPI runnableEntry(LPVOID pThread);
 #else
 	static unsigned __stdcall runnableEntry(void* pThread);
-#endif
-
-#if defined(_DLL)
-	static DWORD WINAPI callableEntry(LPVOID pThread);
-#else
-	static unsigned __stdcall callableEntry(void* pThread);
 #endif
 
 	void createImpl(Entry ent, void* pData);
@@ -124,17 +109,17 @@ private:
 		{
 			TlsSetValue(_slot, pThread);
 		}
-	
+
 	private:
 		DWORD _slot;
 	};
 
-	Runnable*    _pRunnableTarget;
-	CallbackData _callbackTarget;
-	HANDLE       _thread;
-	DWORD        _threadId;
-	int          _prio;
-	int          _stackSize;
+	SharedPtr<Runnable> _pRunnableTarget;
+	HANDLE _thread;
+	DWORD _threadId;
+	int _prio;
+	int _stackSize;
+	int _cpu;
 
 	static CurrentThreadHolder _currentThreadHolder;
 };

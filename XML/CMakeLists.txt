@@ -1,4 +1,5 @@
-set(LIBNAME "PocoXML")
+set(LIBNAME "XML")
+set(POCO_LIBNAME "Poco${LIBNAME}")
 
 # Sources
 file(GLOB SRCS_G "src/*.cpp")
@@ -24,30 +25,35 @@ else()
     )
 endif (POCO_UNBUNDLED)
 
-add_definitions(-D_USRDLL -DXML_NS -DXML_DTD -DHAVE_EXPAT_CONFIG_H)
+if(WIN32)
+#TODO: Is XML_STATIC only required with Windows? What does it do?
+add_definitions(-DXML_STATIC -DXML_NS -DXML_DTD -DHAVE_EXPAT_CONFIG_H)
+else()
+add_definitions(-DXML_NS -DXML_DTD -DHAVE_EXPAT_CONFIG_H)
+endif()
 
-add_library( ${LIBNAME} ${LIB_MODE} ${SRCS} )
-set_target_properties( ${LIBNAME}
+add_library( "${LIBNAME}" ${LIB_MODE} ${SRCS} )
+add_library( "${POCO_LIBNAME}" ALIAS "${LIBNAME}")
+set_target_properties( "${LIBNAME}"
     PROPERTIES
     VERSION ${SHARED_LIBRARY_VERSION} SOVERSION ${SHARED_LIBRARY_VERSION}
-    DEFINE_SYMBOL XML_EXPORTS)
-target_link_libraries( ${LIBNAME} ${SYSLIBS} PocoFoundation)
-
-install(
-    DIRECTORY include/Poco
-    DESTINATION include
-    PATTERN ".svn" EXCLUDE
+    OUTPUT_NAME ${POCO_LIBNAME}
+    DEFINE_SYMBOL XML_EXPORTS
     )
 
-install(
-    TARGETS ${LIBNAME}
-    LIBRARY DESTINATION lib${LIB_SUFFIX}
-    ARCHIVE DESTINATION lib${LIB_SUFFIX}
-    RUNTIME DESTINATION bin
+target_link_libraries( "${LIBNAME}" ${SYSLIBS} Foundation)
+target_include_directories( "${LIBNAME}"
+    PUBLIC
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+        $<INSTALL_INTERFACE:include>
+    PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src
     )
+
+POCO_INSTALL("${LIBNAME}")
+POCO_GENERATE_PACKAGE("${LIBNAME}")
 
 if (ENABLE_TESTS)
-  add_subdirectory(samples)
-  add_subdirectory(testsuite)
+    add_subdirectory(samples)
+    add_subdirectory(testsuite)
 endif ()
 

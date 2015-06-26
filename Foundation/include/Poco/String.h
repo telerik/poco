@@ -121,7 +121,7 @@ S toUpper(const S& str)
 
 	S result;
 	result.reserve(str.size());
-	while (it != end) result += Ascii::toUpper(*it++);
+	while (it != end) result += static_cast<typename S::value_type>(Ascii::toUpper(*it++));
 	return result;
 }
 
@@ -133,7 +133,7 @@ S& toUpperInPlace(S& str)
 	typename S::iterator it  = str.begin();
 	typename S::iterator end = str.end();
 
-	while (it != end) { *it = Ascii::toUpper(*it); ++it; }
+	while (it != end) { *it = static_cast<typename S::value_type>(Ascii::toUpper(*it)); ++it; }
 	return str;
 }
 
@@ -147,7 +147,7 @@ S toLower(const S& str)
 
 	S result;
 	result.reserve(str.size());
-	while (it != end) result += Ascii::toLower(*it++);
+	while (it != end) result += static_cast<typename S::value_type>(Ascii::toLower(*it++));
 	return result;
 }
 
@@ -159,7 +159,7 @@ S& toLowerInPlace(S& str)
 	typename S::iterator it  = str.begin();
 	typename S::iterator end = str.end();
 
-	while (it != end) { *it = Ascii::toLower(*it); ++it; }
+	while (it != end) { *it = static_cast<typename S::value_type>(Ascii::toLower(*it)); ++it; }
 	return str;
 }
 
@@ -183,8 +183,8 @@ int icompare(
 	It end1 = str.begin() + pos + n;
 	while (it1 != end1 && it2 != end2)
 	{
-		typename S::value_type c1(Ascii::toLower(*it1));
-		typename S::value_type c2(Ascii::toLower(*it2));
+		typename S::value_type c1(static_cast<typename S::value_type>(Ascii::toLower(*it1)));
+		typename S::value_type c2(static_cast<typename S::value_type>(Ascii::toLower(*it2)));
 		if (c1 < c2)
 			return -1;
 		else if (c1 > c2)
@@ -209,8 +209,8 @@ int icompare(const S& str1, const S& str2)
 	typename S::const_iterator end2(str2.end());
 	while (it1 != end1 && it2 != end2)
 	{
-		typename S::value_type c1(Ascii::toLower(*it1));
-		typename S::value_type c2(Ascii::toLower(*it2));
+		typename S::value_type c1(static_cast<typename S::value_type>(Ascii::toLower(*it1)));
+		typename S::value_type c2(static_cast<typename S::value_type>(Ascii::toLower(*it2)));
 		if (c1 < c2)
 			return -1;
 		else if (c1 > c2)
@@ -294,8 +294,8 @@ int icompare(
 	typename S::const_iterator end = str.begin() + pos + n;
 	while (it != end && *ptr)
 	{
-		typename S::value_type c1(Ascii::toLower(*it));
-		typename S::value_type c2(Ascii::toLower(*ptr));
+		typename S::value_type c1(static_cast<typename S::value_type>(Ascii::toLower(*it)));
+		typename S::value_type c2(static_cast<typename S::value_type>(Ascii::toLower(*ptr)));
 		if (c1 < c2)
 			return -1;
 		else if (c1 > c2)
@@ -388,7 +388,7 @@ S translate(const S& str, const typename S::value_type* from, const typename S::
 
 template <class S>
 S& translateInPlace(S& str, const S& from, const S& to)
-	/// Replaces in str all occurences of characters in from
+	/// Replaces in str all occurrences of characters in from
 	/// with the corresponding (by position) characters in to.
 	/// If there is no corresponding character, the character
 	/// is removed.
@@ -491,7 +491,7 @@ S& removeInPlace(S& str, const typename S::value_type ch, typename S::size_type 
 
 template <class S>
 S replace(const S& str, const S& from, const S& to, typename S::size_type start = 0)
-	/// Replace all occurences of from (which must not be the empty string)
+	/// Replace all occurrences of from (which must not be the empty string)
 	/// in str with to, starting at position start.
 {
 	S result(str);

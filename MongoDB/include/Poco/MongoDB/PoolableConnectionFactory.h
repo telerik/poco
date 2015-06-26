@@ -77,14 +77,21 @@ class PooledConnection
 	/// Helper class for borrowing and returning a connection automatically from a pool.
 {
 public:
-	PooledConnection(Poco::ObjectPool<Connection, Connection::Ptr>& pool) : _pool(pool)
+	PooledConnection(Poco::ObjectPool<Connection, Connection::Ptr>& pool, long timeoutMilliseconds = 0) : _pool(pool)
 	{
-		_connection = _pool.borrowObject();
+		_connection = _pool.borrowObject(timeoutMilliseconds);
 	}
 
 	virtual ~PooledConnection()
 	{
-		_pool.returnObject(_connection);
+		try
+		{
+			_pool.returnObject(_connection);
+		}
+		catch (...)
+		{
+			poco_unexpected();
+		}
 	}
 
 	operator Connection::Ptr ()

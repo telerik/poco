@@ -84,7 +84,7 @@ public:
 		_runnable(*pOwner, method),
 		_stopped(true),
 		_running(false),
-		_done(false)
+		_done(Event::EVENT_MANUALRESET)
 		/// Creates the activity. Call start() to
 		/// start it.
 	{
@@ -94,8 +94,15 @@ public:
 	~Activity()
 		/// Stops and destroys the activity.
 	{
-		stop();
-		wait();
+		try
+		{
+			stop();
+			wait();
+		}
+		catch (...)
+		{
+			poco_unexpected();
+		}
 	}
 	
 	void start()

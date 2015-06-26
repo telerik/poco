@@ -13,14 +13,6 @@
 #include "JSONTest.h"
 #include "CppUnit/TestCaller.h"
 #include "CppUnit/TestSuite.h"
-#include "Poco/JSON/Object.h"
-#include "Poco/JSON/Parser.h"
-#include "Poco/JSON/Query.h"
-#include "Poco/JSON/JSONException.h"
-#include "Poco/JSON/Stringifier.h"
-#include "Poco/JSON/ParseHandler.h"
-#include "Poco/JSON/PrintHandler.h"
-#include "Poco/JSON/Template.h"
 #include "Poco/Path.h"
 #include "Poco/Environment.h"
 #include "Poco/File.h"
@@ -165,37 +157,10 @@ void JSONTest::testFalseProperty()
 
 void JSONTest::testNumberProperty()
 {
-	std::string json = "{ \"test\" : 1969 }";
-	Parser parser;
-	Var result;
-
-	try
-	{
-		result = parser.parse(json);
-	}
-	catch(JSONException& jsone)
-	{
-		std::cout << jsone.message() << std::endl;
-		assert(false);
-	}
-
-	assert(result.type() == typeid(Object::Ptr));
-
-	Object::Ptr object = result.extract<Object::Ptr>();
-	Var test = object->get("test");
-	assert(test.isInteger());
-	int value = test;
-	assert(value == 1969);
-
-	DynamicStruct ds = *object;
-	assert (!ds["test"].isEmpty());
-	assert (ds["test"].isNumeric());
-	assert (ds["test"] == 1969);
-
-	const DynamicStruct& rds = *object;
-	assert (!rds["test"].isEmpty());
-	assert (rds["test"].isNumeric());
-	assert (rds["test"] == 1969);
+	testNumber(1969);
+	testNumber(-1969);
+	testNumber(1969.5);
+	testNumber(-1969.5);
 }
 
 
@@ -1216,6 +1181,60 @@ void JSONTest::testPrintHandler()
 		"    ]\n"
 		"}"
 	);
+
+	json = 
+		"{"
+			"\"array\":"
+			"["
+				"{"
+					"\"key1\":"
+					"["
+						"1,2,3,"
+						"{"
+							"\"subkey\":"
+							"\"test\""
+						"}"
+					"]"
+				"},"
+				"{"
+					"\"key2\":"
+					"{"
+						"\"anotherSubKey\":"
+						"["
+							"1,"
+							"{"
+								"\"subSubKey\":"
+								"["
+									"4,5,6"
+								"]"
+							"}"
+						"]"
+					"}"
+				"}"
+			"]"
+		"}";
+
+
+	ostr.str("");
+	pHandler->setIndent(0);
+	parser.reset();
+	parser.parse(json);
+	assert (json == ostr.str());
+
+	json="[[\"a\"],[\"b\"],[[\"c\"],[\"d\"]]]";
+	ostr.str("");
+	pHandler->setIndent(0);
+	parser.reset();
+	parser.parse(json);
+	assert (json == ostr.str());
+
+	json="[{\"1\":\"one\",\"0\":[\"zero\",\"nil\"]}]";
+	ostr.str("");
+	pHandler->setIndent(0);
+	parser.reset();
+	parser.parse(json);
+	assert (json == ostr.str());
+
 }
 
 
@@ -1375,13 +1394,27 @@ void JSONTest::testStringify()
 
 void JSONTest::testStringifyPreserveOrder()
 {
-	Object jObj(true);
-	jObj.set("foo", 0);
-	jObj.set("bar", 0);
-	jObj.set("baz", 0);
+	Object presObj(true);
+	presObj.set("foo", 0);
+	presObj.set("bar", 0);
+	presObj.set("baz", 0);
 	std::stringstream ss;
-	jObj.stringify(ss);
+	presObj.stringify(ss);
 	assert(ss.str() == "{\"foo\":0,\"bar\":0,\"baz\":0}");
+	ss.str("");
+	Stringifier::stringify(presObj, ss);
+	assert(ss.str() == "{\"foo\":0,\"bar\":0,\"baz\":0}");
+
+	Object noPresObj;
+	noPresObj.set("foo", 0);
+	noPresObj.set("bar", 0);
+	noPresObj.set("baz", 0);
+	ss.str("");
+	noPresObj.stringify(ss);
+	assert(ss.str() == "{\"bar\":0,\"baz\":0,\"foo\":0}");
+	ss.str("");
+	Stringifier::stringify(noPresObj, ss);
+	assert(ss.str() == "{\"bar\":0,\"baz\":0,\"foo\":0}");
 
 	std::string json = "{ \"Simpsons\" : { \"husband\" : { \"name\" : \"Homer\" , \"age\" : 38 }, \"wife\" : { \"name\" : \"Marge\", \"age\" : 36 }, "
 						"\"children\" : [ \"Bart\", \"Lisa\", \"Maggie\" ], "

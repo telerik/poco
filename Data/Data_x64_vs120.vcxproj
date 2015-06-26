@@ -95,29 +95,29 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='debug_shared|x64'">
     <OutDir>..\bin64\</OutDir>
-    <IntDir>obj64\$(Configuration)\</IntDir>
+    <IntDir>obj64\Data\$(Configuration)\</IntDir>
     <LinkIncremental>true</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='release_shared|x64'">
     <OutDir>..\bin64\</OutDir>
-    <IntDir>obj64\$(Configuration)\</IntDir>
+    <IntDir>obj64\Data\$(Configuration)\</IntDir>
     <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='debug_static_mt|x64'">
     <OutDir>..\lib64\</OutDir>
-    <IntDir>obj64\$(Configuration)\</IntDir>
+    <IntDir>obj64\Data\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='release_static_mt|x64'">
     <OutDir>..\lib64\</OutDir>
-    <IntDir>obj64\$(Configuration)\</IntDir>
+    <IntDir>obj64\Data\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='debug_static_md|x64'">
     <OutDir>..\lib64\</OutDir>
-    <IntDir>obj64\$(Configuration)\</IntDir>
+    <IntDir>obj64\Data\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='release_static_md|x64'">
     <OutDir>..\lib64\</OutDir>
-    <IntDir>obj64\$(Configuration)\</IntDir>
+    <IntDir>obj64\Data\$(Configuration)\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='debug_shared|x64'">
     <ClCompile>
@@ -151,7 +151,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='release_shared|x64'">
     <ClCompile>
-      <Optimization>Disabled</Optimization>
+      <Optimization>MaxSpeed</Optimization>
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
@@ -208,7 +208,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='release_static_mt|x64'">
     <ClCompile>
-      <Optimization>Disabled</Optimization>
+      <Optimization>MaxSpeed</Optimization>
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
@@ -257,7 +257,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='release_static_md|x64'">
     <ClCompile>
-      <Optimization>Disabled</Optimization>
+      <Optimization>MaxSpeed</Optimization>
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
@@ -303,6 +303,7 @@
     <ClInclude Include="include\Poco\Data\DynamicDateTime.h"/>
     <ClInclude Include="include\Poco\Data\DynamicLOB.h"/>
     <ClInclude Include="include\Poco\Data\Extraction.h"/>
+    <ClInclude Include="include\Poco\Data\JSONRowFormatter.h"/>
     <ClInclude Include="include\Poco\Data\Limit.h"/>
     <ClInclude Include="include\Poco\Data\LOB.h"/>
     <ClInclude Include="include\Poco\Data\LOBStream.h"/>
@@ -344,6 +345,7 @@
     <ClCompile Include="src\DataException.cpp"/>
     <ClCompile Include="src\Date.cpp"/>
     <ClCompile Include="src\DynamicLOB.cpp"/>
+    <ClCompile Include="src\JSONRowFormatter.cpp"/>
     <ClCompile Include="src\Limit.cpp"/>
     <ClCompile Include="src\MetaColumn.cpp"/>
     <ClCompile Include="src\PooledSessionHolder.cpp"/>

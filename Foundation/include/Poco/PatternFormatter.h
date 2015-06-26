@@ -45,6 +45,7 @@ class Foundation_API PatternFormatter: public Formatter
 	///   * %P - message process identifier
 	///   * %T - message thread name
 	///   * %I - message thread identifier (numeric)
+	///   * %O - message thread OS identifier (numeric)
 	///   * %N - node or host name
 	///   * %U - message source file path (empty string if not set)
 	///   * %u - message source line number (0 if not set)
@@ -121,10 +122,11 @@ protected:
 		/// Returns a string for the given priority value.
 	
 private:
-
 	struct PatternAction
 	{
-		PatternAction(): key(0), length(0) {}
+		PatternAction(): key(0), length(0) 
+		{
+		}
 
 		char key;
 		int length;
@@ -132,16 +134,14 @@ private:
 		std::string prepend;
 	};
 
-	std::vector<PatternAction>  _patternActions;
-	bool                        _localTime;
-	Timestamp::TimeDiff         _localTimeOffset;
-	std::string                 _pattern;
-
-
-	void ParsePattern();
+	void parsePattern();
 		/// Will parse the _pattern string into the vector of PatternActions,
 		/// which contains the message key, any text that needs to be written first
-		/// a proprety in case of %[] and required length.
+		/// a property in case of %[] and required length.
+
+	std::vector<PatternAction> _patternActions;
+	bool _localTime;
+	std::string _pattern;
 };
 
 

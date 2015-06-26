@@ -139,7 +139,7 @@ class InternalBulkExtraction: public BulkExtraction<C>
 	/// Container Data Type specialization extension for extraction of values from a query result set.
 	///
 	/// This class is intended for PocoData internal use - it is used by StatementImpl 
-	/// to automaticaly create internal BulkExtraction in cases when statement returns data and no external storage
+	/// to automatically create internal BulkExtraction in cases when statement returns data and no external storage
 	/// was supplied. It is later used by RecordSet to retrieve the fetched data after statement execution.
 	/// It takes ownership of the Column pointer supplied as constructor argument. Column object, in turn
 	/// owns the data container pointer.
@@ -153,7 +153,7 @@ public:
 	typedef InternalBulkExtraction<ValType> Type;
 	typedef SharedPtr<Type>                 Ptr;
 
-	explicit InternalBulkExtraction(C& result,
+	InternalBulkExtraction(C& result,
 		Column<C>* pColumn,
 		Poco::UInt32 limit,
 		const Position& pos = Position(0)): 
